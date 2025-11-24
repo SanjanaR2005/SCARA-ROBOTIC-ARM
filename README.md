@@ -15,8 +15,8 @@ A custom-built 4 Degree-of-Freedom SCARA robotic arm designed for pick-and-place
 |--------------|:-------:|-----------|
 | NEMA 17 Stepper Motors | 3 | Base, Elbow, Vertical lift |
 | MG90S / SG90 Servo Motors | 2 | Wrist rotation + gripper control |
-| TMC2208 Stepper Drivers | 3 | SilentSmooth STEP/DIR drivers |
-| Arduino UNO / Mega | 1 | Main controller |
+| TMC2208 Stepper Drivers | 3 | Silent Smooth STEP/DIR drivers |
+| Arduino UNO  | 1 | Main controller |
 | GT2 Timing Belt + 16T Pulleys | 1 set | Motion transmission |
 | 12V 3A Power Supply | 1 | Primary power |
 | Bearings, Couplers, M3 Screws | — | Mechanical structure |
