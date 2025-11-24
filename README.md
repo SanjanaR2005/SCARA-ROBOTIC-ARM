@@ -10,12 +10,14 @@ A custom-built 4 Degree-of-Freedom SCARA robotic arm designed for pick-and-place
 - Payload capacity: **200–300g**
 
 
-**Hardware / Components Used**
-3 × NEMA17 steppers
-2 × MG90S servos
-3 × TMC2208 drivers
-Arduino UNO/Mega
-GT2 belts + pulleys
-12V 3A PSU
-Bearings, couplers, fasteners
+## 🧰 Hardware / Components Used
+| **Component** | **Qty** | **Notes** |
+|--------------|:-------:|-----------|
+| NEMA 17 Stepper Motors | 3 | Base, Elbow, Vertical lift |
+| MG90S / SG90 Servo Motors | 2 | Wrist rotation + gripper control |
+| TMC2208 Stepper Drivers | 3 | SilentSmooth STEP/DIR drivers |
+| Arduino UNO / Mega | 1 | Main controller |
+| GT2 Timing Belt + 16T Pulleys | 1 set | Motion transmission |
+| 12V 3A Power Supply | 1 | Primary power |
+| Bearings, Couplers, M3 Screws | — | Mechanical structure |
 
