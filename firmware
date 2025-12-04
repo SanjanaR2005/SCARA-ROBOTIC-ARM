@@ -1,1 +1,75 @@
+#include <AccelStepper.h>
+#include <Servo.h>
 
+// -------------------- Define Steppers --------------------
+AccelStepper stepperShoulder(AccelStepper::DRIVER, 2, 5);  // STEP=2, DIR=5 (A4988)
+AccelStepper stepperElbow(AccelStepper::DRIVER, 3, 6);     // STEP=3, DIR=6 (A4988)
+AccelStepper stepperZ(AccelStepper::DRIVER, 4, 7);         // STEP=4, DIR=7 (TMC2208)
+
+// -------------------- Define Servos --------------------
+Servo gripper;
+Servo wrist;
+
+// -------------------- Motion Parameters --------------------
+const int MAX_SPEED = 800;       // steps/s (adjust as per motor capability)
+const int ACCELERATION = 400;    // steps/s^2
+
+// -------------------- Setup --------------------
+void setup() {
+  Serial.begin(9600);
+
+  // Shoulder setup
+  stepperShoulder.setMaxSpeed(MAX_SPEED);
+  stepperShoulder.setAcceleration(ACCELERATION);
+  stepperShoulder.setMinPulseWidth(2);  // for A4988 (safe)
+
+  // Elbow setup
+  stepperElbow.setMaxSpeed(MAX_SPEED);
+  stepperElbow.setAcceleration(ACCELERATION);
+  stepperElbow.setMinPulseWidth(2);     // for A4988 (safe)
+
+  // Z setup
+  stepperZ.setMaxSpeed(MAX_SPEED);
+  stepperZ.setAcceleration(ACCELERATION);
+  stepperZ.setMinPulseWidth(3);         // safer for TMC2208
+
+  // Servo setup
+  gripper.attach(8);
+  wrist.attach(9);
+  gripper.write(90); // neutral
+  wrist.write(90);   // neutral
+
+  Serial.println("SCARA Ready");
+}
+
+// -------------------- Loop --------------------
+void loop() {
+  // Example motion sequence -------------------
+
+  // Move arm joints
+  stepperShoulder.moveTo(1000);
+  stepperElbow.moveTo(500);
+  stepperZ.moveTo(-300);
+
+  runAll();   // run all until done
+
+  delay(500);
+
+  // Move back
+  stepperShoulder.moveTo(0);
+  stepperElbow.moveTo(0);
+  stepperZ.moveTo(0);
+
+  runAll();
+
+  delay(1000);
+}
+
+// -------------------- Function to run all steppers --------------------
+void runAll() {
+  while (stepperShoulder.isRunning() || stepperElbow.isRunning() || stepperZ.isRunning()) {
+    stepperShoulder.run();
+    stepperElbow.run();
+    stepperZ.run();
+  }
+}
