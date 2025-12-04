@@ -2,17 +2,17 @@
 #include <Servo.h>
 
 // -------------------- Define Steppers --------------------
-AccelStepper stepperShoulder(AccelStepper::DRIVER, 2, 5);  // STEP=2, DIR=5 (A4988)
-AccelStepper stepperElbow(AccelStepper::DRIVER, 3, 6);     // STEP=3, DIR=6 (A4988)
-AccelStepper stepperZ(AccelStepper::DRIVER, 4, 7);         // STEP=4, DIR=7 (TMC2208)
+AccelStepper stepperShoulder(AccelStepper::DRIVER, 2, 5); 
+AccelStepper stepperElbow(AccelStepper::DRIVER, 3, 6);    
+AccelStepper stepperZ(AccelStepper::DRIVER, 4, 7);         
 
 // -------------------- Define Servos --------------------
 Servo gripper;
 Servo wrist;
 
 // -------------------- Motion Parameters --------------------
-const int MAX_SPEED = 800;       // steps/s (adjust as per motor capability)
-const int ACCELERATION = 400;    // steps/s^2
+const int MAX_SPEED = 800;       
+const int ACCELERATION = 400;    
 
 // -------------------- Setup --------------------
 void setup() {
@@ -21,17 +21,17 @@ void setup() {
   // Shoulder setup
   stepperShoulder.setMaxSpeed(MAX_SPEED);
   stepperShoulder.setAcceleration(ACCELERATION);
-  stepperShoulder.setMinPulseWidth(2);  // for A4988 (safe)
+  stepperShoulder.setMinPulseWidth(2); 
 
   // Elbow setup
   stepperElbow.setMaxSpeed(MAX_SPEED);
   stepperElbow.setAcceleration(ACCELERATION);
-  stepperElbow.setMinPulseWidth(2);     // for A4988 (safe)
+  stepperElbow.setMinPulseWidth(2);     
 
   // Z setup
   stepperZ.setMaxSpeed(MAX_SPEED);
   stepperZ.setAcceleration(ACCELERATION);
-  stepperZ.setMinPulseWidth(3);         // safer for TMC2208
+  stepperZ.setMinPulseWidth(3);         
 
   // Servo setup
   gripper.attach(8);
