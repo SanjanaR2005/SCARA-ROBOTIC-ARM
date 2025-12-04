@@ -1,0 +1,129 @@
+#include <AccelStepper.h>
+#include <Servo.h>
+
+// Pin configuration for Arduino Uno
+#define GRIPPER_PIN 9
+#define WRIST_PIN 10
+
+AccelStepper stepper1(AccelStepper::DRIVER, 2, 3);  // STEP, DIR
+AccelStepper stepper2(AccelStepper::DRIVER, 4, 5);
+AccelStepper stepper3(AccelStepper::DRIVER, 6, 8);
+
+Servo gripperServo;
+Servo wristServo;
+
+// SCARA arm link lengths (in mm)
+double L1 = 91.6;
+double L2 = 95.2;
+
+// Step conversion factors
+const float theta1AngleToSteps = 14.55;
+const float theta2AngleToSteps = 11.43;
+const float zAngleToSteps = 400;
+
+const int gripperCloseAngle = 140;
+const int gripperOpenAngle = 100;
+
+void setup() {
+  Serial.begin(115200);
+
+  // Initialize steppers
+  stepper1.setMaxSpeed(4000);
+  stepper1.setAcceleration(2000);
+  stepper2.setMaxSpeed(4000);
+  stepper2.setAcceleration(2000);
+  stepper3.setMaxSpeed(4000);
+  stepper3.setAcceleration(2000);
+
+  // Attach servos
+  gripperServo.attach(GRIPPER_PIN);
+  wristServo.attach(WRIST_PIN);
+  gripperServo.write(gripperOpenAngle);
+  wristServo.write(90);
+
+  Serial.println("SCARA Initialized.");
+}
+
+void loop() {
+  if (Serial.available()) {
+    String command = Serial.readStringUntil('\n');
+    command.trim();
+    executeCommand(command);
+  }
+}
+
+void executeCommand(String command) {
+  if (command.equalsIgnoreCase("home")) {
+    homing();
+  }
+  else if (command.startsWith("move")) {
+    float x, y;
+    int z;
+    if (sscanf(command.c_str(), "move %f %f %d", &x, &y, &z) == 3) {
+      moveToPositionIK(x, y, z);
+    } else {
+      Serial.println("Invalid format. Use: move x y z");
+    }
+  }
+  else if (command.equalsIgnoreCase("open_gripper")) {
+    gripperServo.write(gripperOpenAngle);
+  }
+  else if (command.equalsIgnoreCase("close_gripper")) {
+    gripperServo.write(gripperCloseAngle);
+  }
+  else if (command.startsWith("gripperz")) {
+    int angle;
+    if (sscanf(command.c_str(), "gripperz %d", &angle) == 1) {
+      wristServo.write(angle);
+    }
+  }
+  else {
+    Serial.println("Unknown command.");
+  }
+}
+
+void moveToPositionIK(float x, float y, int z) {
+  float r = sqrt(x * x + y * y);
+  float cos_theta2 = (r * r - L1 * L1 - L2 * L2) / (2 * L1 * L2);
+
+  if (cos_theta2 < -1 || cos_theta2 > 1) {
+    Serial.println("Target unreachable");
+    return;
+  }
+
+  float theta2 = acos(cos_theta2);
+  float theta1 = atan2(y, x) - atan2(L2 * sin(theta2), L1 + L2 * cos(theta2));
+
+  theta1 = theta1 * 180.0 / PI;
+  theta2 = theta2 * 180.0 / PI;
+
+  long steps1 = theta1 * theta1AngleToSteps;
+  long steps2 = theta2 * theta2AngleToSteps;
+  long steps3 = z * zAngleToSteps;
+
+  stepper1.moveTo(steps1);
+  stepper2.moveTo(steps2);
+  stepper3.moveTo(steps3);
+
+  while (stepper1.isRunning() || stepper2.isRunning() || stepper3.isRunning()) {
+    stepper1.run();
+    stepper2.run();
+    stepper3.run();
+  }
+
+  Serial.println("Movement complete.");
+}
+
+void homing() {
+  stepper1.moveTo(0);
+  stepper2.moveTo(0);
+  stepper3.moveTo(0);
+
+  while (stepper1.isRunning() || stepper2.isRunning() || stepper3.isRunning()) {
+    stepper1.run();
+    stepper2.run();
+    stepper3.run();
+  }
+
+  Serial.println("Homing complete.");
+}
